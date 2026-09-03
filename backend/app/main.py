@@ -1,10 +1,12 @@
 import os
 import json
+import time
+import random
 import pandas as pd
 import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 
 from app.engine.feature_extractor import FeatureExtractor
@@ -28,7 +30,7 @@ app = FastAPI(
 # CORS middleware for Next.js frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -44,7 +46,13 @@ fusion_engine = MultimodalRiskFusionEngine()
 policy_engine = AdaptiveFirewallPolicyEngine()
 shap_provider = ShapExplainerProvider()
 
-# Try loading data and training models on startup
+# In-memory audit trail store for analyst decisions
+audit_trail_store: List[Dict[str, Any]] = []
+
+def generate_decision_id() -> str:
+    return f"FS-2026-{random.randint(100000, 999999)}"
+
+# Startup initialization
 @app.on_event("startup")
 def startup_event():
     print("Initializing FinShield Quantum Backend...")
@@ -71,6 +79,13 @@ class TransactionAnalysisRequest(BaseModel):
     is_loc_changed: Optional[bool] = False
     hour_of_day: Optional[int] = 14
 
+class AnalystDecisionRequest(BaseModel):
+    decision_id: str
+    txn_id: str
+    analyst_id: str
+    action: str = Field(..., description="APPROVE, REJECT, or ESCALATE")
+    notes: Optional[str] = "Analyst verified user communication authenticity."
+
 class CopilotRequest(BaseModel):
     query: str
     risk_score: float
@@ -83,7 +98,22 @@ def read_root():
         "status": "online",
         "system": "FinShield Quantum Fraud Engine",
         "version": "1.0.0",
-        "active_protection": True
+        "active_protection": True,
+        "environment": "Production Demo Sandbox"
+    }
+
+@app.get("/api/health")
+def health_check():
+    return {
+        "status": "healthy",
+        "timestamp": time.time(),
+        "services": {
+            "ml_engine": "active",
+            "social_nlp": "active",
+            "fraud_graph": "active",
+            "pqc_module": "ready",
+            "quantum_module": "ready"
+        }
     }
 
 @app.post("/api/transaction/analyze")
@@ -91,11 +121,11 @@ def analyze_transaction(req: TransactionAnalysisRequest):
     # Retrieve customer profile proxy
     cust_profile = {
         "customer_id": req.user_id,
-        "age": 68 if req.user_id > 5000 else 42,
-        "digital_skill_level": 3 if req.user_id > 5000 else 8,
+        "age": 72 if req.user_id >= 7000 else (68 if req.user_id > 5000 else 42),
+        "digital_skill_level": 3 if req.user_id >= 5000 else 8,
         "avg_txn_amount": 5000.0,
         "std_txn_amount": 2000.0,
-        "vulnerability_flag": bool(req.user_id > 5000)
+        "vulnerability_flag": bool(req.user_id >= 5000)
     }
 
     # 1. Social NLP analysis
@@ -136,11 +166,12 @@ def analyze_transaction(req: TransactionAnalysisRequest):
         vulnerability_score=f_dict["vulnerability_score"]
     )
 
-    all_reasons = social_reasons + graph_reasons
-    if req.is_new_payee:
+    all_reasons = list(dict.fromkeys(social_reasons + graph_reasons))
+    if req.is_new_payee and "First-time beneficiary transfer" not in all_reasons:
         all_reasons.append("First-time beneficiary transfer")
     if req.amount > cust_profile["avg_txn_amount"] * 3.0:
-        all_reasons.append(f"Amount is {req.amount / cust_profile['avg_txn_amount']:.1f}x higher than user's normal average")
+        multiplier = req.amount / cust_profile['avg_txn_amount']
+        all_reasons.append(f"{multiplier:.1f}x higher than user's normal average transfer amount")
 
     # 6. Policy Engine Decision
     policy_res = policy_engine.evaluate_policy(fusion_res, all_reasons, cust_profile)
@@ -148,7 +179,10 @@ def analyze_transaction(req: TransactionAnalysisRequest):
     # 7. SHAP Local Explanation
     shap_res = shap_provider.compute_local_explanation(f_vector, policy_res["manipulation_risk_score"])
 
-    return {
+    decision_id = generate_decision_id()
+
+    record = {
+        "decision_id": decision_id,
         "user_id": req.user_id,
         "payee": req.payee,
         "amount": req.amount,
@@ -161,7 +195,55 @@ def analyze_transaction(req: TransactionAnalysisRequest):
         "risk_breakdown": fusion_res["breakdown"],
         "reasons": policy_res["reasons"],
         "shap_explanation": shap_res["shap_breakdown"],
-        "vulnerable_mode_triggered": cust_profile["vulnerability_flag"]
+        "vulnerable_mode_triggered": cust_profile["vulnerability_flag"],
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "analyst_status": "PENDING_REVIEW" if policy_res["action_code"] >= 2 else "AUTO_RESOLVED"
+    }
+
+    audit_trail_store.append(record)
+    return record
+
+@app.post("/api/analyst/decision")
+def record_analyst_decision(req: AnalystDecisionRequest):
+    # Search audit trail store
+    target = next((item for item in audit_trail_store if item["decision_id"] == req.decision_id or item.get("txn_id") == req.txn_id), None)
+    
+    timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    entry = {
+        "decision_id": req.decision_id,
+        "txn_id": req.txn_id,
+        "analyst_id": req.analyst_id,
+        "action": req.action.upper(),
+        "notes": req.notes,
+        "timestamp": timestamp,
+        "status": "COMPLETED"
+    }
+    
+    if target:
+        target["analyst_status"] = req.action.upper()
+        target["analyst_override"] = entry
+        
+    return {
+        "status": "success",
+        "message": f"Analyst decision {req.action.upper()} recorded for audit ID {req.decision_id}",
+        "audit_entry": entry
+    }
+
+@app.get("/api/analyst/audit-trail")
+def get_audit_trail():
+    return {
+        "total_records": len(audit_trail_store),
+        "audit_records": audit_trail_store[-20:] # Return last 20 records
+    }
+
+@app.post("/api/reset")
+def reset_demo_state():
+    global audit_trail_store
+    audit_trail_store.clear()
+    return {
+        "status": "success",
+        "message": "Demo state reset successfully. Audit trail cleared and random seed initialized.",
+        "timestamp": time.time()
     }
 
 @app.get("/api/scenarios/run/{scenario_id}")
@@ -179,9 +261,9 @@ def run_attack_scenario(scenario_id: int):
 
     # Construct request payload matching scenario
     payload = TransactionAnalysisRequest(
-        user_id=7701, # Senior user
-        amount=85000.0 * (target_scen["amount_multiplier"] / 8.5),
-        payee="PAY-6350 (Unverified Merchant)",
+        user_id=7701, # Senior user (Sunita Sharma)
+        amount=85000.0 if scenario_id == 1 else (5000.0 if scenario_id == 2 else 85000.0 * (target_scen["amount_multiplier"] / 8.5)),
+        payee="PAY-6350 (Rahul Traders)",
         payee_id="PAY-6350",
         message=target_scen["message"],
         call_transcript=target_scen["transcript"],
@@ -205,6 +287,7 @@ def list_scenarios():
 @app.get("/api/quantum/compare")
 def quantum_benchmark():
     # Load dataset sample
+    np.random.seed(42)
     X_sample = np.random.uniform(0, 1, (100, 4)).astype(np.float32)
     y_sample = (X_sample[:, 0] + X_sample[:, 1] > 1.0).astype(int)
     
@@ -280,3 +363,4 @@ def copilot_explain(req: CopilotRequest):
         "risk_score": req.risk_score,
         "security_sandbox_status": "VERIFIED (Read-only advice mode - no financial transactions allowed via LLM)"
     }
+

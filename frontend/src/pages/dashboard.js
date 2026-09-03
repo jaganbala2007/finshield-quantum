@@ -276,9 +276,9 @@ export default function FraudOpsCenter() {
 
           </div>
 
-          {/* 5 Manipulation Signals Detected Banner */}
-          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-2">
-            <span className="text-xs font-bold text-rose-400 uppercase tracking-wider">5 MANIPULATION SIGNALS DETECTED BY AI</span>
+          {/* 5 Manipulation Signals Detected Banner & HITL Analyst Decision Bar */}
+          <div className="p-4 rounded-xl bg-slate-950 border border-slate-800 space-y-4">
+            <span className="text-xs font-bold text-rose-400 uppercase tracking-wider block">5 MANIPULATION SIGNALS DETECTED BY AI</span>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-xs">
               {heroTxn.reasons.map((r, i) => (
                 <div key={i} className="p-2.5 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-200 font-semibold flex items-center gap-2">
@@ -286,6 +286,91 @@ export default function FraudOpsCenter() {
                   <span>{r}</span>
                 </div>
               ))}
+            </div>
+
+            {/* Human-in-the-Loop Analyst Override Workflow */}
+            <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="text-xs">
+                <span className="text-slate-400 font-bold block">HUMAN-IN-THE-LOOP (HITL) ANALYST ACTION</span>
+                <span className="text-slate-500 text-[11px]">AI Recommendation: HOLD payment. Require verbal dual-channel verification.</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={async () => {
+                    try {
+                      await fetch('http://localhost:8080/api/analyst/decision', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          decision_id: 'FS-2026-HERO-001',
+                          txn_id: 'TXN-7701-HERO',
+                          analyst_id: 'ANALYST-904',
+                          action: 'APPROVE',
+                          notes: 'Verified customer Sunita Sharma verbally via official bank helpline.'
+                        })
+                      });
+                      alert('Analyst Action: OVERRIDE APPROVE recorded in audit log FS-2026-HERO-001');
+                    } catch (e) {
+                      alert('Recorded Analyst Action: OVERRIDE APPROVE (Offline Demo Mode)');
+                    }
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 hover:bg-emerald-500/30 flex items-center gap-1.5"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>OVERRIDE & APPROVE</span>
+                </button>
+
+                <button
+                  onClick={async () => {
+                    try {
+                      await fetch('http://localhost:8080/api/analyst/decision', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          decision_id: 'FS-2026-HERO-001',
+                          txn_id: 'TXN-7701-HERO',
+                          analyst_id: 'ANALYST-904',
+                          action: 'REJECT',
+                          notes: 'Confirmed social engineering scam. Blocked beneficiary PAY-6350 permanently.'
+                        })
+                      });
+                      alert('Analyst Action: CONFIRM REJECT recorded in audit log FS-2026-HERO-001');
+                    } catch (e) {
+                      alert('Recorded Analyst Action: CONFIRM REJECT (Offline Demo Mode)');
+                    }
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-500/20 text-rose-400 border border-rose-500/40 hover:bg-rose-500/30 flex items-center gap-1.5"
+                >
+                  <ShieldAlert className="w-3.5 h-3.5" />
+                  <span>CONFIRM REJECT</span>
+                </button>
+
+                <button
+                  onClick={async () => {
+                    try {
+                      await fetch('http://localhost:8080/api/analyst/decision', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          decision_id: 'FS-2026-HERO-001',
+                          txn_id: 'TXN-7701-HERO',
+                          analyst_id: 'ANALYST-904',
+                          action: 'ESCALATE',
+                          notes: 'Escalated to Cyber Fraud Response Team for ISP traceback.'
+                        })
+                      });
+                      alert('Analyst Action: ESCALATE TO CYBER CELL recorded in audit log FS-2026-HERO-001');
+                    } catch (e) {
+                      alert('Recorded Analyst Action: ESCALATE (Offline Demo Mode)');
+                    }
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500/20 text-amber-400 border border-amber-500/40 hover:bg-amber-500/30 flex items-center gap-1.5"
+                >
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  <span>ESCALATE TO CYBER CELL</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

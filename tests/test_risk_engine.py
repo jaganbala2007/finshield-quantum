@@ -1,10 +1,12 @@
 import pytest
 import sys
 import os
+from fastapi.testclient import TestClient
 
 # Add backend directory to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backend")))
 
+from app.main import app
 from app.engine.feature_extractor import FeatureExtractor
 from app.engine.social_model import SocialEngineeringModel
 from app.engine.behavior_model import BehaviorAnomalyModel
@@ -13,6 +15,8 @@ from app.engine.policy_engine import AdaptiveFirewallPolicyEngine
 from app.pqc_module.ml_kem import PostQuantumCryptoKEM
 from app.quantum_module.qsvc_classifier import QuantumKernelClassifier
 from app.quantum_module.qaoa_optimizer import QAOAInvestigatorOptimizer
+
+client = TestClient(app)
 
 def test_social_engineering_nlp():
     social_model = SocialEngineeringModel()
@@ -58,3 +62,55 @@ def test_quantum_qsvc_and_qaoa():
     ]
     res = qaoa.solve_prioritization(cases, capacity_limit=1)
     assert len(res["classical_greedy"]["selected_cases"]) == 1
+
+def test_hero_scenario_run():
+    response = client.get("/api/scenarios/run/1")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["policy_decision"] == "HOLD"
+    assert data["manipulation_risk_score"] >= 85.0
+    assert "decision_id" in data
+
+def test_analyst_hitl_decision():
+    # Run analysis first to get decision ID
+    analyze_resp = client.post("/api/transaction/analyze", json={
+        "user_id": 7701,
+        "amount": 85000.0,
+        "payee": "Rahul Traders",
+        "message": "URGENT: Transfer immediately to safe vault",
+        "call_transcript": "Officer Sharma speaking. Do not hang up."
+    })
+    assert analyze_resp.status_code == 200
+    analyze_data = analyze_resp.json()
+    decision_id = analyze_data["decision_id"]
+
+    # Record analyst approval override
+    analyst_resp = client.post("/api/analyst/decision", json={
+        "decision_id": decision_id,
+        "txn_id": decision_id,
+        "analyst_id": "ANALYST-904",
+        "action": "APPROVE",
+        "notes": "Verified customer verbally via dual-channel call."
+    })
+    assert analyst_resp.status_code == 200
+    analyst_data = analyst_resp.json()
+    assert analyst_data["status"] == "success"
+    assert analyst_data["audit_entry"]["action"] == "APPROVE"
+
+def test_reset_demo_state():
+    resp = client.post("/api/reset")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "success"
+
+def test_copilot_sandboxed_explain():
+    resp = client.post("/api/copilot/explain", json={
+        "query": "Why was this transaction paused?",
+        "risk_score": 94.0,
+        "decision": "HOLD",
+        "reasons": ["Urgency language detected", "First-time beneficiary transfer"]
+    })
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "copilot_response" in data
+    assert "VERIFIED" in data["security_sandbox_status"]
+
