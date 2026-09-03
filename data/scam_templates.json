@@ -1,0 +1,135 @@
+[
+  {
+    "scenario_id": 1,
+    "name": "Fake Bank Officer Call",
+    "keywords": [
+      "urgent",
+      "bank security",
+      "account blocked",
+      "transfer now",
+      "safe account"
+    ],
+    "message": "SECURITY ALERT: Your bank account is under unauthorized access. Call 1800-SAFE-BANK immediately to prevent asset lock.",
+    "transcript": "Hello, I am Officer Sharma from National Bank Security. We detected a suspicious login from Russia on your account. To protect your money, you must immediately transfer your funds to our temporary safe vault account PAY-6350. Do not hang up or contact anyone.",
+    "amount_multiplier": 8.5
+  },
+  {
+    "scenario_id": 2,
+    "name": "Phishing SMS / KYC Freeze",
+    "keywords": [
+      "kyc expired",
+      "account frozen",
+      "verify link",
+      "immediate action"
+    ],
+    "message": "URGENT: Your KYC status expired today. Your account will be frozen in 2 hours. Click http://bank-kyc-verify.com to complete verification and update payee.",
+    "transcript": "",
+    "amount_multiplier": 4.2
+  },
+  {
+    "scenario_id": 3,
+    "name": "Fake Law Enforcement Coercion",
+    "keywords": [
+      "police",
+      "cbi",
+      "warrant",
+      "bail",
+      "legal action",
+      "confidential"
+    ],
+    "message": "LEGAL NOTICE: High Court warrant issued against your Aadhaar/SSN for money laundering. Contact Inspector Verma immediately.",
+    "transcript": "This is Inspector Verma from Crime Branch. Your name is linked to a seized cartel account. You must deposit \u20b9150,000 to government court escrow PAY-6380 for audit before 5 PM to avoid instant arrest.",
+    "amount_multiplier": 12.0
+  },
+  {
+    "scenario_id": 4,
+    "name": "Bogus Investment Scheme",
+    "keywords": [
+      "guaranteed 200%",
+      "crypto profit",
+      "limited slot",
+      "wealth broker"
+    ],
+    "message": "Exclusive Offer: Double your savings in 7 days with AI Quantum Trading. Wire initial deposit now to reserve slot.",
+    "transcript": "Sir, this is Apex Crypto Wealth. If you transfer \u20b950,000 today to PAY-6410, our AI bot guarantees 250% return by Friday. Hundreds of users are already withdrawing profits.",
+    "amount_multiplier": 6.0
+  },
+  {
+    "scenario_id": 5,
+    "name": "Lottery / Prize Scam",
+    "keywords": [
+      "winner",
+      "lottery",
+      "processing fee",
+      "claim cash"
+    ],
+    "message": "CONGRATULATIONS! You won \u20b925,00,000 in the International Mega Draw. Pay \u20b925,000 processing tax to claim reward.",
+    "transcript": "Congratulations ma'am! You are our lucky grand winner. Just transfer the government customs clearance fee of \u20b925,000 to PAY-6320 and \u20b925 Lakhs will be credited to your account within 10 minutes.",
+    "amount_multiplier": 3.5
+  },
+  {
+    "scenario_id": 6,
+    "name": "Friend / Relative in Need Impersonation",
+    "keywords": [
+      "emergency",
+      "hospital bill",
+      "urgent loan",
+      "stranded",
+      "dont tell mom"
+    ],
+    "message": "Hey uncle, it's Rahul. I got into an accident in Delhi and need \u20b945,000 urgently for hospital deposit. Please send to PAY-6390.",
+    "transcript": "Hi uncle, I lost my wallet and my car broke down. The hospital needs a cash deposit for my friend's treatment right now. Please don't call my parents, just send money to PAY-6390 urgently!",
+    "amount_multiplier": 5.0
+  },
+  {
+    "scenario_id": 7,
+    "name": "Malicious QR Code Scam",
+    "keywords": [
+      "scan qr",
+      "city tax refund",
+      "receive money"
+    ],
+    "message": "Municipal Tax Department: You have a tax refund of \u20b912,500 pending. Scan QR code and approve transfer to claim.",
+    "transcript": "",
+    "amount_multiplier": 2.0
+  },
+  {
+    "scenario_id": 8,
+    "name": "Relative in Distress Call",
+    "keywords": [
+      "kidnapped",
+      "ransom",
+      "emergency wire",
+      "police impossible"
+    ],
+    "message": "We have your family member. Send money now or face consequences.",
+    "transcript": "Listen carefully! We have your son in custody. If you want him back safe, transfer \u20b9200,000 to PAY-6370 within 30 minutes. Do not call the police or hang up!",
+    "amount_multiplier": 15.0
+  },
+  {
+    "scenario_id": 9,
+    "name": "Tech Support Remote Access Scam",
+    "keywords": [
+      "virus detected",
+      "microsoft security",
+      "anydesk",
+      "cleanup fee"
+    ],
+    "message": "CRITICAL ERROR: Windows Trojan detected! Call Microsoft Support 1800-444-TECH immediately.",
+    "transcript": "Sir, your computer is broadcasting malware to bank servers. Install AnyDesk and transfer \u20b935,000 security patch license fee to PAY-6340 to prevent bank account suspension.",
+    "amount_multiplier": 3.0
+  },
+  {
+    "scenario_id": 10,
+    "name": "Deepfake Executive Wire Call",
+    "keywords": [
+      "ceo instruction",
+      "confidential M&A",
+      "urgent wire",
+      "audit secret"
+    ],
+    "message": "CONFIDENTIAL: Execute M&A deposit wire immediately per CEO direct memo.",
+    "transcript": "This is Chief Executive Officer David. We are closing a secret acquisition today. Wire \u20b9300,000 immediately to PAY-6400. Do not mention this to colleagues until press release.",
+    "amount_multiplier": 18.0
+  }
+]

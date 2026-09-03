@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Default Dark Mode: Slate-950 background with crisp high contrast text */
+  body {
+    @apply bg-slate-950 text-slate-100 min-h-screen antialiased selection:bg-cyan-500 selection:text-white font-sans;
+  }
+
+  /* Light / High-Contrast Theme Overrides */
+  body.light-theme {
+    @apply bg-slate-50 text-slate-900;
+    background-image: none !important;
+  }
+}
+
+/* Glassmorphic & Solid Card System (WCAG high contrast readable) */
+.glass-card {
+  @apply bg-slate-900/95 backdrop-blur-md border border-slate-800 rounded-2xl shadow-xl shadow-black/40 transition-all duration-200;
+}
+
+body.light-theme .glass-card {
+  @apply bg-white border-slate-300 text-slate-900 shadow-md shadow-slate-200/50 backdrop-blur-none;
+}
+
+body.light-theme .text-white {
+  color: #0f172a !important;
+}
+
+body.light-theme .text-slate-300,
+body.light-theme .text-slate-400 {
+  color: #334155 !important;
+}
+
+body.light-theme .bg-slate-950,
+body.light-theme .bg-slate-900 {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+.glass-card-hover {
+  @apply glass-card hover:border-cyan-500/50 hover:shadow-cyan-500/10 hover:-translate-y-0.5;
+}
+
+/* Vulnerable Customer Accessibility Mode overrides */
+.vulnerable-accessibility-mode {
+  font-size: 1.25rem !important;
+  line-height: 1.8 !important;
+}
+
+.vulnerable-accessibility-mode button,
+.vulnerable-accessibility-mode input,
+.vulnerable-accessibility-mode select {
+  font-size: 1.2rem !important;
+  padding: 0.9rem 1.5rem !important;
+  min-height: 56px !important;
+}
+
+/* High contrast button interactive states */
+button:focus-visible {
+  outline: 3px solid #06b6d4 !important;
+  outline-offset: 2px !important;
+}
+
+/* Glow effects (subtle, non-distracting) */
+.glow-cyan {
+  box-shadow: 0 0 15px -3px rgba(6, 182, 212, 0.3);
+}
+
+.glow-rose {
+  box-shadow: 0 0 15px -3px rgba(244, 63, 94, 0.3);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #090d16;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}

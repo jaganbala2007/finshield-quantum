@@ -1,0 +1,18 @@
+# Node dependencies & build
+node_modules/
+.next/
+out/
+build/
+
+# Python cache & virtualenvs
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+venv/
+env/
+
+# OS & Temp files
+.DS_Store
+Thumbs.db
+*.log
