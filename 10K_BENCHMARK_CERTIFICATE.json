@@ -1,0 +1,11 @@
+{
+  "benchmark_timestamp": "2026-09-04T04:45:27.673704",
+  "total_transactions": 10000,
+  "scam_recall": 0.9,
+  "precision": 1.0,
+  "f1_score": 0.9474,
+  "false_intervention_rate": 0.0,
+  "avg_latency_ms": 1.65,
+  "fraud_loss_prevented_inr": 37600000.0,
+  "certification_status": "PASSED_ELITE_GRADE"
+}
